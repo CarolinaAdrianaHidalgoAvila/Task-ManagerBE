@@ -1,6 +1,7 @@
 package com.example.task.states;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface IStateService {
 
@@ -10,7 +11,7 @@ public interface IStateService {
 
     StateDTO edit(StateDTO dto);
 
-    StateDTO getOne(String uuid);
+    StateDTO getOne(UUID uuid);
 
-    StateDTO delete(String uuid);
+    StateDTO delete(UUID uuid);
 }

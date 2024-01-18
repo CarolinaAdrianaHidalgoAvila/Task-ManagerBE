@@ -3,21 +3,35 @@ package com.example.task.tasks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import java.util.stream.Collectors;
+
+
+import com.example.task.categories.Category;
+import com.example.task.categories.CategoryDTO;
+import com.example.task.categories.CategoryRepository;
+import com.example.task.states.State;
+import com.example.task.states.StateRepository;
+
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.Collections;
 
-@Service
+
 @Component
 public class TaskService implements ITaskService{
     @Autowired
     private TaskMapper mapper;
 
     @Autowired
-    private ITaskRepository taskRepository;
+    private TaskRepository taskRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+    @Autowired
+    private StateRepository statusRepository;
 
     public List<TaskDTO> getAll() {
         return taskRepository
@@ -27,48 +41,72 @@ public class TaskService implements ITaskService{
                .collect(Collectors.toList());
     }
 
-    @Override
+   @Override
     public TaskDTO create(TaskDTO dto) {
-       Task task = mapper.toModel(dto);
-       Task savedTask = taskRepository.save(task);
-       return mapper.toDTO(savedTask);
+        List<Category> categories = Collections.emptyList();
+        State status = null;
+        if (!CollectionUtils.isEmpty(dto.getCategories())) {
+            categories = categoryRepository.findAllByUuidIn(dto.getCategories().stream().map(CategoryDTO::getUuid).toList());
+        }
+
+        if (dto.getStatus() != null && dto.getStatus().getUuid() != null) {
+
+            Optional<State> statusByUuid = statusRepository.getStatusByUuid(dto.getStatus().getUuid());
+            if (statusByUuid.isPresent()) {
+                status = statusByUuid.get();
+            }
+        }
+
+        Task task = mapper.toModel(dto);
+        task.setCategories(categories);
+        task.setStatus(status);
+        Task savedTask = taskRepository.save(task);
+        return mapper.toDTO(savedTask);
     }
 
     @Override
-    public TaskDTO getOne(String uuid) {
-        Task task = getTask(uuid);
-        return mapper.toDTO(task);
-    }
-
     public TaskDTO edit(TaskDTO taskDTO) {
-        Task example1 = new Task(taskDTO.getUuid());
-        Optional<Task> optionalTask = taskRepository.findOne(Example.of(example1));
+        Optional<Task> optionalTask = taskRepository.getTaskByUuid(taskDTO.getUuid());
+        List<Category> categories = Collections.emptyList();
+        State status = null;
+        if (!CollectionUtils.isEmpty(taskDTO.getCategories())) {
+            categories = categoryRepository.findAllByUuidIn(taskDTO.getCategories().stream().map(CategoryDTO::getUuid).toList());
+        }
+
+        if (taskDTO.getStatus() != null && taskDTO.getStatus().getUuid() != null) {
+
+            Optional<State> statusByUuid = statusRepository.getStatusByUuid(taskDTO.getStatus().getUuid());
+            if (statusByUuid.isPresent()) {
+                status = statusByUuid.get();
+            }
+        }
 
         Task task = optionalTask.get();
         task.setDescription(taskDTO.getDescription());
         task.setName(taskDTO.getName());
-        task.setStatus(taskDTO.getStatus());
-        task.setCategory(taskDTO.getCategory());
+        task.setStatus(status);
+        task.setCategories(categories);
 
         taskRepository.save(task);
         return mapper.toDTO(task);
     }
 
     @Override
-    public TaskDTO delete(String uuid) {
-        Task example1 = new Task(uuid);
-        Optional<Task> optionalTask = taskRepository.findOne(Example.of(example1));
+    public TaskDTO getOne(UUID uuid) {
+        Task task = new Task(uuid);
+        Optional<Task> task1 = taskRepository.findOne(Example.of(task));
+
+        return mapper.toDTO(task1.get());
+    }
+
+    @Override
+    public TaskDTO delete(UUID uuid) {
+        Optional<Task> optionalTask = taskRepository.getTaskByUuid(uuid);
 
         Task task = optionalTask.get();
         taskRepository.delete(task);
 
         return mapper.toDTO(task);
-    }
-
-
-    private Task getTask(String uuid) {
-        Task task = taskRepository.findOneByUuid(uuid);
-        return task;
     }
 
     

@@ -1,7 +1,7 @@
 package com.example.task.categories;
 
 import java.util.List;
-
+import java.util.UUID;
 
 public interface ICategoryService {
 
@@ -11,8 +11,8 @@ public interface ICategoryService {
 
     CategoryDTO edit(CategoryDTO dto);
 
-    CategoryDTO getOne(String uuid);
+    CategoryDTO getOne(UUID uuid);
 
-    CategoryDTO delete(String uuid);
+    CategoryDTO delete(UUID uuid);
     
 }

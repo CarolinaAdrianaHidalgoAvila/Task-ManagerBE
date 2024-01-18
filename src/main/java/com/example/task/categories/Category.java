@@ -1,33 +1,105 @@
 package com.example.task.categories;
-import java.sql.Timestamp;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.PrePersist;
+import org.hibernate.annotations.SQLDelete;
+
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import com.example.task.tasks.Task;
+
+import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
+@Entity
+@SQLDelete(sql = "UPDATE Category SET deleted = true WHERE category_id=?")
 
 public class Category {
-    private String categoryId;
-    private String  name;
-
-    private String uuid;
+    @Id
+    @GeneratedValue
+    private Long categoryId;
+    @Column(nullable = false, length = 200)
+    private String name;
+    @Column(nullable = true, length = 2000)
+    private String description;
+    @Column(updatable = false, nullable = false, unique = true, length = 36)
+    private UUID uuid;
+    @Column(updatable = false, columnDefinition = "timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP")
+    @CreatedDate
     private Timestamp createdDate;
+    @Column(columnDefinition = "timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP")
+    @LastModifiedDate
     private Timestamp modifiedDate;
+    @CreatedBy
     private Integer createdBy;
+    @LastModifiedBy
     private Integer modifiedBy;
+
+    @Column(columnDefinition = "BOOLEAN NOT NULL DEFAULT '0'")
     private boolean deleted;
 
-    public Category(String name, String uuid) {
+    @ManyToMany(mappedBy = "categories")
+    private Set<Task> tasks = new HashSet<>();
+
+    public Category() {
+    }
+
+    public Category(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public Category(UUID uuid, String name, String description) {
+        this.uuid = uuid;
         this.name = name;
-        this.uuid = uuid;
+        this.description = description;
     }
-    public Category(String uuid) {
-        this.uuid = uuid;
+
+    @PrePersist
+    public void initializeUuid() {
+        this.setUuid(UUID.randomUUID());
     }
-    public String getCategoryId() {
+
+    public Long getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(String categoryId) {
+    public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;
     }
-   
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
     public Timestamp getCreatedDate() {
         return createdDate;
     }
@@ -68,20 +140,11 @@ public class Category {
         this.deleted = deleted;
     }
 
-    public String getName() {
-        return name;
+    public Set<Task> getTasks() {
+        return tasks;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTasks(Set<Task> tasks) {
+        this.tasks = tasks;
     }
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-    
 }

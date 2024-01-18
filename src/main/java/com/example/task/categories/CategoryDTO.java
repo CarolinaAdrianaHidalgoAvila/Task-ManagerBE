@@ -1,23 +1,31 @@
 package com.example.task.categories;
 
+import java.util.UUID;
+
 public class CategoryDTO {
+    private UUID uuid;
+    private String name;
+    private String description;
 
-    private String uuid;
-    private String  name;
-
-
-    public CategoryDTO(){}
-
-    public CategoryDTO(String uuid, String name) {
+    public CategoryDTO(UUID uuid) {
         this.uuid = uuid;
-        this.name = name;
     }
 
-    public String getUuid() {
+    public CategoryDTO() {
+    }
+
+
+    public CategoryDTO(UUID uuid, String name, String description) {
+        this.uuid = uuid;
+        this.name = name;
+        this.description = description;
+    }
+
+    public UUID getUuid() {
         return uuid;
     }
 
-    public void setUuid(String uuid) {
+    public void setUuid(UUID uuid) {
         this.uuid = uuid;
     }
 
@@ -29,5 +37,11 @@ public class CategoryDTO {
         this.name = name;
     }
 
+    public String getDescription() {
+        return description;
+    }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

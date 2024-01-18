@@ -5,7 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 import java.util.List;
+import java.util.UUID;
 
 
 @RestController
@@ -23,7 +25,7 @@ public class StateController {
     @GetMapping("/{uuid}")
     public ResponseEntity<StateDTO> getOne(@PathVariable String uuid) {
         try {
-            StateDTO state = stateService.getOne(uuid);
+            StateDTO state = stateService.getOne(UUID.fromString(uuid));
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(state);
@@ -47,6 +49,6 @@ public class StateController {
 
     @DeleteMapping("/{uuid}")
     public StateDTO delete(@PathVariable String uuid) {
-        return stateService.delete(uuid);
+        return stateService.delete(UUID.fromString(uuid));
     }
 }

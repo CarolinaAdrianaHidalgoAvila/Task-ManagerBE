@@ -1,21 +1,31 @@
 package com.example.task.states;
 
+import java.util.UUID;
+
 public class StateDTO {
-    private String uuid;
+    private UUID uuid;
     private String name;
+    private String description;
 
-    public StateDTO() {}
-
-    public StateDTO(String uuid, String name) {
+    public StateDTO(UUID uuid) {
         this.uuid = uuid;
-        this.name = name;
     }
 
-    public String getUuid() {
+    public StateDTO() {
+    }
+
+
+    public StateDTO(UUID uuid, String name, String description) {
+        this.uuid = uuid;
+        this.name = name;
+        this.description = description;
+    }
+
+    public UUID getUuid() {
         return uuid;
     }
 
-    public void setUuid(String uuid) {
+    public void setUuid(UUID uuid) {
         this.uuid = uuid;
     }
 
@@ -27,4 +37,11 @@ public class StateDTO {
         this.name = name;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

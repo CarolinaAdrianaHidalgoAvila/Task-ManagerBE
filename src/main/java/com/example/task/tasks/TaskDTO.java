@@ -1,61 +1,65 @@
 package com.example.task.tasks;
-import java.sql.Timestamp;
 
-import com.example.task.categories.Category;
-import com.example.task.states.State;
+import com.example.task.categories.CategoryDTO;
+import com.example.task.states.StateDTO;
+
+import java.util.List;
+import java.util.UUID;
 
 public class TaskDTO {
-    private String uuid;
-    private String  name;
+    private UUID uuid;
+    private String name;
     private String description;
-    private Category category;
-    private Timestamp endedDate;
-    private State status;
+    private List<CategoryDTO> categories;
+    private StateDTO status;
 
     public TaskDTO(){}
     
-    public TaskDTO(String uuid, String name, String description, Category category, Timestamp endedDate, State status) {
+    public TaskDTO(UUID uuid, String name, String description, List<CategoryDTO> categories, StateDTO status) {
         this.uuid = uuid;
         this.name = name;
         this.description = description;
-        this.category = category;
-        this.endedDate = endedDate;
+        this.categories = categories;
         this.status = status;
     }
-    public String getUuid() {
+
+    public UUID getUuid() {
         return uuid;
     }
-    public void setUuid(String uuid) {
+
+    public void setUuid(UUID uuid) {
         this.uuid = uuid;
     }
+
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
+
     public String getDescription() {
         return description;
     }
+
     public void setDescription(String description) {
         this.description = description;
     }
-    public Category getCategory() {
-        return category;
+
+    public List<CategoryDTO> getCategories() {
+        return categories;
     }
-    public void setCategory(Category category) {
-        this.category = category;
+
+    public void setCategories(List<CategoryDTO> categories) {
+        this.categories = categories;
     }
-    public Timestamp getEndedDate() {
-        return endedDate;
-    }
-    public void setEndedDate(Timestamp endedDate) {
-        this.endedDate = endedDate;
-    }
-    public State getStatus() {
+
+    public StateDTO getStatus() {
         return status;
     }
-    public void setStatus(State status) {
+
+    public void setStatus(StateDTO status) {
         this.status = status;
     }
     

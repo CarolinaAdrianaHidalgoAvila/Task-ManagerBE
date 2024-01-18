@@ -5,7 +5,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 import java.util.List;
+import java.util.UUID;
+
 
 @RestController
 @RequestMapping("/categories")
@@ -20,7 +23,7 @@ public class CategoryController {
     @GetMapping("/{uuid}")
     public ResponseEntity<CategoryDTO> getOne(@PathVariable String uuid) {
         try {
-            CategoryDTO category = categoryService.getOne(uuid);
+            CategoryDTO category = categoryService.getOne(UUID.fromString(uuid));
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(category);
@@ -43,7 +46,7 @@ public class CategoryController {
     }
     @DeleteMapping("/{uuid}")
     public CategoryDTO delete(@PathVariable String uuid) {
-        return categoryService.delete(uuid);
+        return categoryService.delete(UUID.fromString(uuid));
     }
 
 

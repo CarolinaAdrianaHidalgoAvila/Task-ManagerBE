@@ -2,18 +2,20 @@ package com.example.task.tasks;
 
 import org.springframework.stereotype.Component;
 import java.util.List;
+import java.util.UUID;
+
 
 @Component
 public interface ITaskService {
 
     public List<TaskDTO> getAll();
 
-    public TaskDTO create(TaskDTO dto);
+    TaskDTO create(TaskDTO dto);
 
-    TaskDTO getOne(String uuid);
+    TaskDTO edit(TaskDTO dto);
 
-    public TaskDTO delete(String uuid);
+    TaskDTO getOne(UUID uuid);
 
-    public TaskDTO edit(TaskDTO dto);
+    TaskDTO delete(UUID uuid);
     
 }

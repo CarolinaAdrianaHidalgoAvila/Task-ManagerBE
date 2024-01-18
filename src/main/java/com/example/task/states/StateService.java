@@ -5,8 +5,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
+
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Service
 
@@ -16,7 +18,7 @@ public class StateService implements IStateService {
     private StateMapper mapper;
 
     @Autowired
-    private IStateRepository stateRepository;
+    private StateRepository stateRepository;
 
     @Override
     public List<StateDTO> getAll() {
@@ -28,6 +30,16 @@ public class StateService implements IStateService {
     }
 
     @Override
+    public StateDTO edit(StateDTO stateDTO) {
+        Optional<State> optionalState = stateRepository.getStatusByUuid(stateDTO.getUuid());
+        State state = optionalState.get();
+        state.setDescription(stateDTO.getDescription());
+        state.setName(stateDTO.getName());
+
+        stateRepository.save(state);
+        return mapper.toDTO(state);
+    }
+    @Override
     public StateDTO create(StateDTO dto) {
         State state = mapper.toModel(dto);
         State savedState = stateRepository.save(state);
@@ -35,39 +47,18 @@ public class StateService implements IStateService {
     }
 
     @Override
-    public StateDTO edit(StateDTO dto) {
-        State example1 = new State(dto.getUuid());
-        Optional<State> optionalState = stateRepository.findOne(Example.of(example1));
-
-
-        State state = optionalState.get();
-        state.setName(dto.getName());
-
-        stateRepository.save(state);
-        return mapper.toDTO(state);
+    public StateDTO getOne(UUID uuid) {
+        State state = new State(uuid);
+        Optional<State> state1 = stateRepository.findOne(Example.of(state));
+        return mapper.toDTO(state1.get());
     }
 
     @Override
-    public StateDTO getOne(String uuid) {
-        State state = getState(uuid);
-        return mapper.toDTO(state);
-    }
-
-    @Override
-    public StateDTO delete(String uuid) {
-        State example1 = new State(uuid);
-        Optional<State> optionalState = stateRepository.findOne(Example.of(example1));
-
-
+    public StateDTO delete(UUID uuid) {
+        Optional<State> optionalState = stateRepository.getStatusByUuid(uuid);
         State state = optionalState.get();
         stateRepository.delete(state);
-
         return mapper.toDTO(state);
-    }
-
-    private State getState(String uuid) {
-        State state = stateRepository.findOneByUuid(uuid);
-        return state;
     }
     
 }
