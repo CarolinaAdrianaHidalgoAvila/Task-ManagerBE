@@ -3,8 +3,8 @@ package com.example.task.states;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 
 import java.util.List;
 import java.util.UUID;
@@ -38,12 +38,12 @@ public class StateController {
     }
 
      @PostMapping
-    public StateDTO create(@RequestBody StateDTO dto) {
+    public StateDTO create(@Validated(StateDTO.CreateValidationGroup.class)@RequestBody StateDTO dto) {
         return stateService.create(dto);
     }
 
     @PutMapping
-    public StateDTO edit(@RequestBody StateDTO dto) {
+    public StateDTO edit(@Validated(StateDTO.UpdateValidationGroup.class) @RequestBody StateDTO dto) {
         return stateService.edit(dto);
     }
 

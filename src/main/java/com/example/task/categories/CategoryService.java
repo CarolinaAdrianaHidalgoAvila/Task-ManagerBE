@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
+import com.example.task.exceptions.CategoryNotFoundException;
 
 import java.util.stream.Collectors;
 
@@ -33,8 +34,13 @@ public class CategoryService implements ICategoryService {
     @Override
     public CategoryDTO getOne(UUID uuid) {
         Category category = new Category(uuid);
-        Optional<Category> category1 = categoryRepository.findOne(Example.of(category));
-        return mapper.toDTO(category1.get());
+        Optional<Category> optionalCategory = categoryRepository.findOne(Example.of(category));
+
+        if (optionalCategory.isEmpty()) {
+            throw new CategoryNotFoundException(uuid.toString());
+        }
+
+        return mapper.toDTO(optionalCategory.get());
     }
 
     @Override
@@ -47,10 +53,15 @@ public class CategoryService implements ICategoryService {
     @Override
     public CategoryDTO edit(CategoryDTO categoryDTO) {
         Optional<Category> optionalCategory = categoryRepository.getCategoryByUuid(categoryDTO.getUuid());
+
+        if (optionalCategory.isEmpty()) {
+            throw new CategoryNotFoundException(categoryDTO.getUuid().toString());
+        }
+
         Category category = optionalCategory.get();
         category.setDescription(categoryDTO.getDescription());
         category.setName(categoryDTO.getName());
-        
+
         categoryRepository.save(category);
         return mapper.toDTO(category);
     }
@@ -58,6 +69,11 @@ public class CategoryService implements ICategoryService {
     @Override
     public CategoryDTO delete(UUID uuid) {
         Optional<Category> optionalCategory = categoryRepository.getCategoryByUuid(uuid);
+
+        if (optionalCategory.isEmpty()) {
+            throw new CategoryNotFoundException(uuid.toString());
+        }
+
         Category category = optionalCategory.get();
         categoryRepository.delete(category);
 

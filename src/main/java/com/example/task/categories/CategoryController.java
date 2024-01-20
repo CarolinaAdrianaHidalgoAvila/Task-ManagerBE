@@ -3,8 +3,8 @@ package com.example.task.categories;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 
 import java.util.List;
 import java.util.UUID;
@@ -36,12 +36,12 @@ public class CategoryController {
     }
 
     @PostMapping
-    public CategoryDTO create(@RequestBody CategoryDTO dto) {
+    public CategoryDTO create(@Validated(CategoryDTO.CreateValidationGroup.class)@RequestBody CategoryDTO dto) {
      
         return categoryService.create(dto);
     }
     @PutMapping
-    public CategoryDTO edit(@RequestBody CategoryDTO dto) {
+    public CategoryDTO edit(@Validated(CategoryDTO.UpdateValidationGroup.class) @RequestBody CategoryDTO dto) {
         return categoryService.edit(dto);
     }
     @DeleteMapping("/{uuid}")

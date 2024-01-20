@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
+import com.example.task.exceptions.StatusNotFound;
+
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.UUID;
@@ -32,6 +34,11 @@ public class StateService implements IStateService {
     @Override
     public StateDTO edit(StateDTO stateDTO) {
         Optional<State> optionalState = stateRepository.getStatusByUuid(stateDTO.getUuid());
+
+        if (optionalState.isEmpty()) {
+            throw new StatusNotFound(stateDTO.getUuid().toString());
+        }
+
         State state = optionalState.get();
         state.setDescription(stateDTO.getDescription());
         state.setName(stateDTO.getName());
@@ -49,15 +56,25 @@ public class StateService implements IStateService {
     @Override
     public StateDTO getOne(UUID uuid) {
         State state = new State(uuid);
-        Optional<State> state1 = stateRepository.findOne(Example.of(state));
-        return mapper.toDTO(state1.get());
+        Optional<State> optionalState = stateRepository.findOne(Example.of(state));
+
+        if (optionalState.isEmpty()) {
+            throw new StatusNotFound(uuid.toString());
+        }
+
+        return mapper.toDTO(optionalState.get());
     }
 
-    @Override
     public StateDTO delete(UUID uuid) {
         Optional<State> optionalState = stateRepository.getStatusByUuid(uuid);
+
+        if (optionalState.isEmpty()) {
+            throw new StatusNotFound(uuid.toString());
+        }
+
         State state = optionalState.get();
         stateRepository.delete(state);
+
         return mapper.toDTO(state);
     }
     
