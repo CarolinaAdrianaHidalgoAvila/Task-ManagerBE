@@ -2,13 +2,23 @@ package com.example.task.tasks;
 
 import com.example.task.categories.CategoryDTO;
 import com.example.task.states.StateDTO;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Size;
 
 import java.util.List;
 import java.util.UUID;
 
 public class TaskDTO {
+    @NotNull(message = "Uuid cannot be null", groups = {UpdateValidationGroup.class})
+    @Null(message = "Uuid should be null", groups = {CreateValidationGroup.class})
     private UUID uuid;
+    @NotBlank(message="Name cannot be blank")
+    @Size(max = 200, min = 3)
     private String name;
+    @NotBlank(message="Description cannot be blank")
+    @Size(max = 2000, min = 3)
     private String description;
     private List<CategoryDTO> categories;
     private StateDTO status;
@@ -61,6 +71,12 @@ public class TaskDTO {
 
     public void setStatus(StateDTO status) {
         this.status = status;
+    }
+    public interface CreateValidationGroup {
+
+    }
+    public interface UpdateValidationGroup {
+
     }
     
 }

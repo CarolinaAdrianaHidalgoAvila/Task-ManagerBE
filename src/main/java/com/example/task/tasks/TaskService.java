@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 import com.example.task.categories.Category;
 import com.example.task.categories.CategoryDTO;
 import com.example.task.categories.CategoryRepository;
+import com.example.task.exceptions.CategoryNotFoundException;
+import com.example.task.exceptions.StatusNotFound;
+import com.example.task.exceptions.TaskNotFoundException;
 import com.example.task.states.State;
 import com.example.task.states.StateRepository;
 
@@ -41,43 +44,69 @@ public class TaskService implements ITaskService{
                .collect(Collectors.toList());
     }
 
-   @Override
+    @Override
     public TaskDTO create(TaskDTO dto) {
         List<Category> categories = Collections.emptyList();
         State status = null;
+    
         if (!CollectionUtils.isEmpty(dto.getCategories())) {
             categories = categoryRepository.findAllByUuidIn(dto.getCategories().stream().map(CategoryDTO::getUuid).toList());
-        }
-
-        if (dto.getStatus() != null && dto.getStatus().getUuid() != null) {
-
-            Optional<State> statusByUuid = statusRepository.getStatusByUuid(dto.getStatus().getUuid());
-            if (statusByUuid.isPresent()) {
-                status = statusByUuid.get();
+    
+            if (categories.size() != dto.getCategories().size()) {
+                throw new CategoryNotFoundException("Al menos una categoría no existe.");
             }
         }
-
+    
+        if (dto.getStatus() != null && dto.getStatus().getUuid() != null) {
+            Optional<State> statusByUuid = statusRepository.getStatusByUuid(dto.getStatus().getUuid());
+    
+            if (statusByUuid.isEmpty()) {
+                throw new StatusNotFound("El estado (status) no existe.");
+            }
+    
+            status = statusByUuid.get();
+        }
+    
         Task task = mapper.toModel(dto);
         task.setCategories(categories);
         task.setStatus(status);
+    
         Task savedTask = taskRepository.save(task);
         return mapper.toDTO(savedTask);
     }
-
+    
     @Override
     public TaskDTO edit(TaskDTO taskDTO) {
         Optional<Task> optionalTask = taskRepository.getTaskByUuid(taskDTO.getUuid());
-        List<Category> categories = Collections.emptyList();
+
+        if (optionalTask.isEmpty()) {
+            throw new TaskNotFoundException(taskDTO.getUuid().toString());
+        }
+
+
+        List<Category> categories;
         State status = null;
         if (!CollectionUtils.isEmpty(taskDTO.getCategories())) {
-            categories = categoryRepository.findAllByUuidIn(taskDTO.getCategories().stream().map(CategoryDTO::getUuid).toList());
+            List<UUID> categoriesUuids = taskDTO.getCategories().stream().map(CategoryDTO::getUuid).toList();
+            categories = categoryRepository.findAllByUuidIn(categoriesUuids);
+            List<UUID> missingIds = categoriesUuids.stream()
+                    .filter(id1 -> categories.stream().noneMatch(obj2 -> obj2.getUuid().equals(id1)))
+                    .toList();
+
+
+            if (!CollectionUtils.isEmpty(missingIds)) {
+                throw new CategoryNotFoundException(missingIds.stream().map(UUID::toString).collect(Collectors.joining(", ")));
+            }
+        } else {
+            categories = Collections.emptyList();
         }
 
         if (taskDTO.getStatus() != null && taskDTO.getStatus().getUuid() != null) {
-
             Optional<State> statusByUuid = statusRepository.getStatusByUuid(taskDTO.getStatus().getUuid());
             if (statusByUuid.isPresent()) {
                 status = statusByUuid.get();
+            } else {
+                throw new StatusNotFound(taskDTO.getStatus().getUuid().toString());
             }
         }
 
@@ -94,14 +123,21 @@ public class TaskService implements ITaskService{
     @Override
     public TaskDTO getOne(UUID uuid) {
         Task task = new Task(uuid);
-        Optional<Task> task1 = taskRepository.findOne(Example.of(task));
+        Optional<Task> optionalTask = taskRepository.findOne(Example.of(task));
 
-        return mapper.toDTO(task1.get());
+        if (optionalTask.isEmpty()) {
+            throw new TaskNotFoundException(uuid.toString());
+        }
+
+        return mapper.toDTO(optionalTask.get());
     }
 
-    @Override
     public TaskDTO delete(UUID uuid) {
         Optional<Task> optionalTask = taskRepository.getTaskByUuid(uuid);
+
+        if (optionalTask.isEmpty()) {
+            throw new TaskNotFoundException(uuid.toString());
+        }
 
         Task task = optionalTask.get();
         taskRepository.delete(task);

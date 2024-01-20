@@ -14,12 +14,14 @@ public class TaskApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(TaskApplication.class, args);
 	}
+
+
 	@Bean
 	public WebMvcConfigurer configureCors() {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**").allowedOrigins("http://localhost:4200");
+				registry.addMapping("/**").allowedMethods("*").allowedOrigins("http://localhost:4200");
 			}
 		};
 	}
